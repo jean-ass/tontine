@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Engagement – Tontine de 11 personnes</title>
+<title>Engagement – Tontine de 12 personnes</title>
 <style>
 :root{
   color-scheme: light;
@@ -72,7 +72,7 @@ footer{margin-top:24px}
 </head>
 <body>
 <div class="wrap">
-  <h1>Je m'engage à cette tontine de groupe de 11 personnes. Je m'engage en toute responsabilité à respecter tous les critères, à être ponctuel.</h1>
+  <h1>Je m'engage à cette tontine de groupe de 12 personnes. Je m'engage en toute responsabilité à respecter tous les critères, à être ponctuel.</h1>
   <p class="sub">Chaque membre signe à côté de son nom. Les signatures des autres membres sont visibles par tous.</p>
 
   <div id="warn" class="warn" style="display:none"></div>
@@ -83,14 +83,14 @@ footer{margin-top:24px}
       <li><b>Cotisation :</b> 51 000 F par mois, à la fin de chaque mois, à partir de novembre 2026.</li>
       <li><b>Paiement :</b> MTN Mobile Money, numéro <b>01 51 55 51 12</b>, au nom de <b>ASSOGBA Jesugnon Jean</b>.</li>
       <li><b>Preuve :</b> après paiement, envoyer la capture du SMS MTN dans le groupe.</li>
-      <li><b>Ramassage :</b> le bénéficiaire reçoit 550 000 F, plus 5 500 F pour ses frais de retrait, au plus tard le 1er du mois suivant.</li>
-      <li><b>Caisse commune :</b> 5 500 F par mois, gardés par Jean ASSOGBA.</li>
+      <li><b>Ramassage :</b> le bénéficiaire reçoit 600 000 F, plus 6 000 F pour ses frais de retrait, au plus tard le 1er du mois suivant.</li>
+      <li><b>Caisse commune :</b> 6 000 F par mois, soit 72 000 F au bout des 12 mois, gardés par Jean ASSOGBA. (À la fin de la tontine, nous resterons ensemble pour décider quoi faire de ces 72 000 F, afin de nous réjouir ensemble de cette tontine avant d'entamer une autre édition.)</li>
       <li><b>Pénalités :</b> 500 F si le paiement n'est pas fait avant 8h le 1er du mois. 5 000 F si toujours impayé 3 jours après le 1er, remis au bénéficiaire du mois.</li>
     </ul>
   </div>
 
   <div class="card">
-    <div class="count"><strong id="countTxt">0 sur 11 ont signé</strong></div>
+    <div class="count"><strong id="countTxt">0 sur 12 ont signé</strong></div>
     <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
     <div id="list" style="margin-top:8px"></div>
   </div>
@@ -118,11 +118,13 @@ footer{margin-top:24px}
 <script>
 const DB = "https://engagement-tontine-default-rtdb.europe-west1.firebasedatabase.app";
 const MEMBERS = [
-  ["Wilfried HOUNDJO","Novembre 2026"],["Jean ASSOGBA","Décembre 2026"],["Pacôme TORIOLA","Janvier 2027"],
-  ["Vincent DOHEMETO","Février 2027"],["Donatien KOUMAGNON","Mars 2027"],["Jacques KOUNOUNDJI","Avril 2027"],
-  ["Eric KIKI","Mai 2027"],["Eugène HEDONOUKOU","Juin 2027"],["Gabriel BAIGBE","Juillet 2027"],
-  ["Clément HAZOUNME","Août 2027"],["Amour GOGAN","Septembre 2027"]
+  ["Wilfried HOUNDJO","Novembre 2026",0],["Jean ASSOGBA","Décembre 2026",1],["Pacôme TORIOLA","Janvier 2027",2],
+  ["Vincent DOHEMETO","Février 2027",3],["Donatien KOUMAGNON","Mars 2027",4],["Jacques KOUNOUNDJI","Avril 2027",5],
+  ["Eric KIKI","Mai 2027",6],["Eugène HEDONOUKOU","Juin 2027",7],["Gabriel BAIGBE","Juillet 2027",8],
+  ["Prosper BAIGBE","Août 2027",11],["Clément HAZOUNME","Septembre 2027",9],["Amour GOGAN","Octobre 2027",10]
 ];
+// Le 3e élément est l'identifiant fixe du membre : sa signature lui reste rattachée même si l'ordre change.
+const BYID = {}; MEMBERS.forEach(m => BYID[m[2]] = m);
 const $ = id => document.getElementById(id);
 let sigs = {};
 let current = null;
@@ -153,7 +155,7 @@ function render(){
   const list = $('list'); list.innerHTML='';
   let n = 0;
   MEMBERS.forEach((m,i)=>{
-    const s = sigs[i];
+    const s = sigs[m[2]];
     if(s) n++;
     const row = document.createElement('div'); row.className='member';
     const num = document.createElement('div'); num.className='num'; num.textContent = i+1;
@@ -173,15 +175,15 @@ function render(){
     } else {
       const b = document.createElement('button'); b.className='primary noprint'; b.textContent='Signer';
       b.setAttribute('aria-label','Signer pour ' + m[0]);
-      b.onclick = ()=>openPad(i);
+      b.onclick = ()=>openPad(m[2]);
       row.appendChild(b);
       const box = document.createElement('div'); box.className='sigbox empty'; box.textContent='En attente de signature';
       row.appendChild(box);
     }
     list.appendChild(row);
   });
-  $('countTxt').textContent = n + ' sur 11 ont signé';
-  $('barFill').style.width = (n/11*100) + '%';
+  $('countTxt').textContent = n + ' sur 12 ont signé';
+  $('barFill').style.width = (n/12*100) + '%';
 }
 
 /* Zone de signature */
@@ -197,9 +199,9 @@ cv.addEventListener('pointerdown',e=>{ e.preventDefault(); cv.setPointerCapture(
 cv.addEventListener('pointermove',e=>{ if(!down) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>cv.addEventListener(ev,()=>{down=false;}));
 
-function openPad(i){
-  current=i;
-  $('pledgeTxt').textContent = 'Moi, ' + MEMBERS[i][0] + ', je m\u2019engage en toute responsabilité à respecter tous les critères de cette tontine et à être ponctuel.';
+function openPad(id){
+  current=id;
+  $('pledgeTxt').textContent = 'Moi, ' + BYID[id][0] + ', je m\u2019engage en toute responsabilité à respecter tous les critères de cette tontine et à être ponctuel.';
   resetPad();
   $('overlay').classList.add('on');
 }
